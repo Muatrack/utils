@@ -1,1 +1,2 @@
 
+html_theme = 'classic'
