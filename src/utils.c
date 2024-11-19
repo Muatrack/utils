@@ -10,9 +10,7 @@
 uint32_t utils_timestamp_base2000_get() {
     uint32_t _ts = time(NULL);
     return _ts - 946656000; /* 时间戳-2000-01-01 00*/
-	// return 771973200; /* 2024-06-17 21:00:00 */
 }
-
 
 uint16_t crc_calculate_algorithm(const void *data, const size_t len) {
 	uint8_t *b = (uint8_t *)data;
@@ -25,13 +23,9 @@ uint16_t crc_calculate_algorithm(const void *data, const size_t len) {
 	for (i = 0; i < len; i++) {
 		crc = crc16_ccitt_update(b[i], crc);
 	}
-
 	crc = crc16_ccitt_finalize(crc);
-
 	return crc;
 }
-
-
 
 uint16_t crc_calculate_table(const void *data, const size_t len) {
 	uint8_t *b = (uint8_t *)data;
@@ -44,9 +38,7 @@ uint16_t crc_calculate_table(const void *data, const size_t len) {
 	for (i = 0; i < len; i++) {
 		crc = crc16_ccitt_update(b[i], crc);
 	}
-
 	crc = crc16_ccitt_finalize(crc);
-
 	return crc;
 }
 
@@ -78,14 +70,13 @@ int utils_crc16_ccitt_calc(void) {
 	uint8_t temp_buffer[300];
 
 	for (i = 0; testdata[i]; i++) {
-		printf("Data: '%s'\n", testdata[i]);
-
+		// printf("Data: '%s'\n", testdata[i]);
 		/* Calculate the CRCs */
 		datalen = strlen(testdata[i]);
 		crc_algorithm = crc_calculate_algorithm(testdata[i], datalen);
-		printf("Algorithm-based CRC: 0x%04hX\n", crc_algorithm);
+		// printf("Algorithm-based CRC: 0x%04hX\n", crc_algorithm);
 		crc_table = crc_calculate_table(testdata[i], datalen);
-		printf("Table-based CRC:     0x%04hX\n", crc_table);
+		// printf("Table-based CRC:     0x%04hX\n", crc_table);
 
 		/* Add the algorithm CRC after the data, note the big endian
 		 * byte order */
@@ -109,12 +100,6 @@ int utils_crc16_ccitt_calc(void) {
 }
 
 bool utils_is_snbytes_equal(uint8_t srcSn[8], uint8_t desSn[8]) {
-	#if 0
-	for( int i = 0; i < 8; i ++ ) {
-		if( srcSn[i] != desSn[i]) return false;
-	}
-	return true;
-	#endif
 	return (memcmp( srcSn, desSn, 8 )==0)?true:false;
 }
 
@@ -162,12 +147,8 @@ bool utils_bytes2str( uint8_t *pIn, size_t iLen, char *pOut, size_t *oLen )
 	if( pIn == NULL || iLen < 1 || pOut == NULL || oLen == NULL ) return false;
 	for( int i = 0; i < iLen; i ++ ) { 
 		sprintf( pOut + (2 * i), "%x%x", pIn[i] >> 4, pIn[i] & 0x0F);
-		// pOut[ i*2 ] = pIn[i] >> 4;
-		// pOut[i*2+1] = pIn[i] & 0x0F;
 	}
 	*oLen = iLen * 2;
 	return true;
 }
-
-///////////////// 字符串 <-> HEX数组 /////////////// 
 
