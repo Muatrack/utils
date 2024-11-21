@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
-
+#include <stdint.h>
 
 /** 
  * 循环数组对一个有限长度的线性数组以循环的方式写数据。
