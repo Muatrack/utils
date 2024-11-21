@@ -12,7 +12,7 @@ uint32_t utils_timestamp_base2000_get() {
     return _ts - 946656000; /* 时间戳-2000-01-01 00*/
 }
 
-uint16_t crc_calculate_algorithm(const void *data, const size_t len) {
+uint16_t utils_crc_calculate_algorithm(const void *data, const size_t len) {
 	uint8_t *b = (uint8_t *)data;
 	size_t i;
 	uint16_t crc;
@@ -73,7 +73,7 @@ int utils_crc16_ccitt_calc(void) {
 		// printf("Data: '%s'\n", testdata[i]);
 		/* Calculate the CRCs */
 		datalen = strlen(testdata[i]);
-		crc_algorithm = crc_calculate_algorithm(testdata[i], datalen);
+		crc_algorithm = utils_crc_calculate_algorithm(testdata[i], datalen);
 		// printf("Algorithm-based CRC: 0x%04hX\n", crc_algorithm);
 		crc_table = crc_calculate_table(testdata[i], datalen);
 		// printf("Table-based CRC:     0x%04hX\n", crc_table);
@@ -84,7 +84,7 @@ int utils_crc16_ccitt_calc(void) {
 		temp_buffer[datalen] = crc_algorithm >> 8;
 		temp_buffer[datalen + 1] = crc_algorithm & 0xFF;
 		/* Re-run the CRC check, but include the CRC */
-		crc_check_algorithm = crc_calculate_algorithm(temp_buffer, datalen + 2);
+		crc_check_algorithm = utils_crc_calculate_algorithm(temp_buffer, datalen + 2);
 		// printf("Algorithm-based CRC check: 0x%04hX\n", crc_check_algorithm);
 
 		/* Repeat for the table-based CRC function, the first section

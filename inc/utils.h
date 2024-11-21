@@ -133,7 +133,7 @@ bool utils_is_snstr_equal(char srcSn[16], char desSn[16]);
  *  @param data 字节序列
  *  @param len 字节序列长度
 */
-uint16_t crc_calculate_algorithm(const void *data, const size_t len);
+uint16_t utils_crc_calculate_algorithm(const void *data, const size_t len);
 
 /** 字符串 -> bytes 
  * @param pIn 输入字串
