@@ -5,6 +5,6 @@
 #include <stdlib.h>  
 #include <string.h>  
 unsigned char *utils_base64_encode(char *buf, unsigned char *str);  
-unsigned char *utils_bae64_decode(char *code);  
+unsigned char *utils_base64_decode(char *code);  
 #endif  
   

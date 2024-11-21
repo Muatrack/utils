@@ -43,7 +43,7 @@ unsigned char *utils_base64_encode(char *buf, unsigned char *str)
     return (unsigned char*)res;  
 }  
   
-unsigned char *utils_bae64_decode(char *code)
+unsigned char *utils_base64_decode(char *code)
 {
 #if 1 /** 因字符类型影响编译，屏蔽 */
 //根据base64表，以字符找到对应的十进制数据  
