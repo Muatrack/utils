@@ -7,7 +7,6 @@
 #include "stdbool.h"
 #include <math.h>
 #include <sys/time.h>
-#include <stdint.h>
 
 __attribute__((weak)) uint32_t os_time_escape( uint32_t t_ms, uint32_t *cur_ms ) {
     struct timeval tNow = {0};
@@ -15,7 +14,7 @@ __attribute__((weak)) uint32_t os_time_escape( uint32_t t_ms, uint32_t *cur_ms )
     gettimeofday( &tNow, NULL );
     time_ms = tNow.tv_usec / 1000;
     if(*cur_ms){*cur_ms = time_ms; }
-    printf("%s.%d[DEFAULT], cur tms:%d\n", __func__, __LINE__, time_ms);
+    printf("%s.%d[DEFAULT], cur tms:%ld\n", __func__, __LINE__, time_ms);
     return (time_ms-t_ms);
 }
 
@@ -181,9 +180,9 @@ bool utils_bytes2str( uint8_t *pIn, size_t iLen, char *pOut, size_t *oLen );
  */
 #define utils_is_time_ms_escaped_v2(vTsAddr,timout_ms) ({    \
     bool NEW_VAL(_bRet) = false;  \
-    uint32_t NEW_VAL(_cur_ts) = 0; \
-    NEW_VAL(_bRet) = ( os_time_escape( *vTsAddr, &NEW_VAL(_cur_ts) ) > timout_ms )?true:false;   \
-    if(NEW_VAL(_bRet)) {*vTsAddr = NEW_VAL(_cur_ts);} \
+    uint32_t NEW_VAL(_cur_tms) = 0; \
+    NEW_VAL(_bRet) = ( os_time_escape( *vTsAddr, &NEW_VAL(_cur_tms) ) > timout_ms )?true:false;   \
+    if(NEW_VAL(_bRet)) {*vTsAddr = NEW_VAL(_cur_tms);} \
     NEW_VAL(_bRet);   \
 })
 
@@ -195,38 +194,42 @@ bool utils_bytes2str( uint8_t *pIn, size_t iLen, char *pOut, size_t *oLen );
  */
 #define utils_is_time_ms_escaped_v2_without_update(vTsAddr,timout_ms) ({    \
     bool NEW_VAL(_bRet) = false;  \
-    uint32_t NEW_VAL(_cur_ts) = 0; \
-    NEW_VAL(_bRet) = ( os_time_escape( *vTsAddr, &NEW_VAL(_cur_ts) ) > timout_ms )?true:false;   \
+    uint32_t NEW_VAL(_cur_tms) = 0; \
+    NEW_VAL(_bRet) = ( os_time_escape( *vTsAddr, &NEW_VAL(_cur_tms) ) > timout_ms )?true:false;   \
     NEW_VAL(_bRet);   \
 })
 
+#define _TZ8_TS    28800
 #define _DAY1_TMS_ 86400000 /* 小时 */
-#include <sys/time.h>
-/** 判断一个时间值(ms)与当前时间(ms)的差值是否超过 timout_ms 
+
+/** 
+ *  判断一个时间值(ms)与当前时间(ms)的差值是否超过 timout_ms 
  *  如last ts至今时差已超过 timeout_ms， 会更新 last ts
- * @param vTsAddr   记录时间的变量地址
- * @param timout_ms 超时时长(ms)
+ * @param vTsAddr       uint32_t*   记录时间的变量地址
+ * @param timout_ms     uint32_t    期望超时时长(ms)
  * @return 如果差值大于 timeout_ms返回true, 否则false
  */
 #define utils_is_time_ms_escaped_in_day(vTsAddr,timeout_ms) ({  \
     bool NEW_VAL(_bRet) = false;  \
-    uint32_t NEW_VAL(_cur_ts) = 0; \
+    uint32_t NEW_VAL(_cur_tms) = 0; \
     struct timeval NEW_VAL(tNow) = {0}; \
     gettimeofday(&NEW_VAL(tNow), NULL);   \
-    NEW_VAL(_cur_ts)=(NEW_VAL(tNow).tv_sec*1000+NEW_VAL(tNow).tv_usec/1000)%_DAY1_TMS_;   \
-    if(*vTsAddr==0) *vTsAddr=NEW_VAL(_cur_ts); \
-    if((NEW_VAL(_cur_ts)<*vTsAddr)&&((*vTsAddr+timeout_ms)>=_DAY1_TMS_)){ \
-        if((_DAY1_TMS_+NEW_VAL(_cur_ts)-*vTsAddr)>timeout_ms){ \
-            *vTsAddr=(*vTsAddr+timeout_ms)%_DAY1_TMS_; \
+    NEW_VAL(tNow).tv_sec += _TZ8_TS;    \
+    NEW_VAL(_cur_tms) = ( NEW_VAL(tNow).tv_sec*1000 + NEW_VAL(tNow).tv_usec/1000 ) % _DAY1_TMS_;   \
+    if(*vTsAddr==0) { *vTsAddr=NEW_VAL(_cur_tms); } \
+    /* 当跨天发生后， _cur_tms 从0增长。会发生 cur_tms < refTms。 */   \
+    if(NEW_VAL(_cur_tms)<*vTsAddr) { /* 跨天发生 */ \
+        if((_DAY1_TMS_+NEW_VAL(_cur_tms)-*vTsAddr)>=timeout_ms) { \
+            *vTsAddr=NEW_VAL(_cur_tms); \
             NEW_VAL(_bRet)=true; \
         } \
-    } else if ( (int32_t)(NEW_VAL(_cur_ts)-*vTsAddr)>timeout_ms ){ \
+    }   \
+    if ( (int32_t)(NEW_VAL(_cur_tms)-*vTsAddr)>=timeout_ms ){ \
         NEW_VAL(_bRet)=true; \
-        *vTsAddr=NEW_VAL(_cur_ts); \
+        *vTsAddr=NEW_VAL(_cur_tms); \
     } \
     NEW_VAL(_bRet);   \
 })
-
 
 /** 判断一个时间值(ms)与当前时间(ms)的差值是否超过 timout_ms 
  *  不会更新last ts
@@ -266,5 +269,16 @@ bool utils_bytes2str( uint8_t *pIn, size_t iLen, char *pOut, size_t *oLen );
         }   \
     }  \
 }
+
+
+/**
+ * 分割字符串
+ * @param       pIn        [!NULL]  输入待分割的字串
+ * @param       delimiter  [!NULL]  分割字符,以字串形式传入
+ * @param       pOutBuf    [!NULL]  输出分割字串的地址，传入可用内存空间
+ * @param       outBufLen  [!0]     输出缓冲区的大小
+ * @return      成功返回分割子串的数量, 失败返回-1
+ */
+int utils_split( char *pIn, char *delimiter, char *pOutBuf, size_t outBufLen );
 
 #endif
