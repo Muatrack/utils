@@ -4,3 +4,4 @@ project(UTILS-TEST VERSION 1.0.0)
 
 include_directories( "../inc" )
 add_executable(utils_test main.c )
+target_link_directories(utils_test PRIVATE ../)

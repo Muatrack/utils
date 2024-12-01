@@ -7,7 +7,7 @@
 #include "stdbool.h"
 #include <math.h>
 #include <sys/time.h>
-#include "base.h"
+#include <stdint.h>
 
 __attribute__((weak)) uint32_t os_time_escape( uint32_t t_ms, uint32_t *cur_ms ) {
     struct timeval tNow = {0};
