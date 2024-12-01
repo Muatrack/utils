@@ -6,8 +6,10 @@
 
 #define T_INTERVAL_TMS  5000
 
-void main() {
+int main() {
     uint32_t    _lastTms = 0;
+    uint8_t     _testCounter = 0;
+
     printf("[%s]\n", __func__);
     
     while( true ) {        
@@ -15,6 +17,10 @@ void main() {
             printf("[ UTILS_TMS-RING ] clock ts: %ld \n", time(NULL));
         }
 
+        if( _testCounter++ > 10 ) break;
         usleep(200000);
     }
+
+    printf("[%s] -test done-\n", __func__);
+    return 0;
 }

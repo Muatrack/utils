@@ -7,7 +7,6 @@ add_executable(utils_test main.c )
 target_link_directories(utils_test PRIVATE ../)
 
 include(CTest)
-add_test(   
-            NAME        UtilsTest 
-            COMMAND     ./utils_test
-        )
+
+add_test( NAME   UTIMER-10s     COMMAND     ls         )
+add_test( NAME   UTIMER-output  COMMAND     utils_test )
