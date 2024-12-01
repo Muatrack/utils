@@ -1,0 +1,4 @@
+
+
+#cmakedefine    COMPILE_SYS_LINUX           @COMPILE_SYS_LINUX@
+#cmakedefine    COMPILE_SYS_FREERTOS        @COMPILE_SYS_FREERTOS@

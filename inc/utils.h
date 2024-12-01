@@ -7,6 +7,7 @@
 #include "stdbool.h"
 #include <math.h>
 #include <sys/time.h>
+#include "base.h"
 
 __attribute__((weak)) uint32_t os_time_escape( uint32_t t_ms, uint32_t *cur_ms ) {
     struct timeval tNow = {0};
@@ -14,7 +15,13 @@ __attribute__((weak)) uint32_t os_time_escape( uint32_t t_ms, uint32_t *cur_ms )
     gettimeofday( &tNow, NULL );
     time_ms = tNow.tv_usec / 1000;
     if(*cur_ms){*cur_ms = time_ms; }
+    #ifdef COMPILE_SYS_LINUX
+    printf("%s.%d[DEFAULT], cur tms:%d\n", __func__, __LINE__, time_ms);
+    #endif
+
+    #ifdef COMPILE_SYS_FREERTOS
     printf("%s.%d[DEFAULT], cur tms:%ld\n", __func__, __LINE__, time_ms);
+    #endif
     return (time_ms-t_ms);
 }
 
